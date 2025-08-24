@@ -1,4 +1,6 @@
+# ======================
 # Build stage
+# ======================
 FROM maven:3-eclipse-temurin-21 AS build
 WORKDIR /app
 
@@ -7,9 +9,14 @@ COPY src ./src
 
 RUN mvn clean package -DskipTests
 
+# ======================
 # Runtime stage
+# ======================
 FROM eclipse-temurin:21-jdk-jammy
 WORKDIR /app
+
+# Install CA certificates for MongoDB Atlas SSL
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/target/*.jar app.jar
 
